@@ -1,7 +1,11 @@
 package com.example.conecta_hogar.dto;
 
 import com.example.conecta_hogar.model.Rol;
+import lombok.Builder;
 
+import java.time.LocalDateTime;
+
+@Builder
 public record AdminResponseDTO(
 
 
@@ -13,6 +17,8 @@ public record AdminResponseDTO(
 
         String telefono,
 
-        Rol rol
+        Rol rol,
+
+        LocalDateTime fechaRegistro
 ) {
 }
