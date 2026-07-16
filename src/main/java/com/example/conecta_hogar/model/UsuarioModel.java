@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.example.conecta_hogar.model.EstadoUsuario;
+import com.example.conecta_hogar.model.Rol;
 
 import java.time.LocalDateTime;
 
@@ -54,8 +56,9 @@ public class UsuarioModel {
     @Column(nullable =false)
     private Rol rol;
 
-    @NotBlank(message = "El estado es obligatorio")
-    private String estado;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoUsuario estado;
 
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
