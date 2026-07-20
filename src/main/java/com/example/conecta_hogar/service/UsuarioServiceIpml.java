@@ -35,7 +35,7 @@ public class UsuarioServiceIpml implements UsuarioService{
         UsuarioModel usuario = usuarioMapper.toModel(request);
 
         // Valores por defecto
-        usuario.setRol(Rol.CLIENTE); // Puedes cambiarlo según el caso
+        usuario.setRol(Rol.CLIENTE); // cambiar al momento de hacer el registro (cliente o maestro)
         usuario.setEstado(EstadoUsuario.ACTIVO);
         usuario.setFechaRegistro(LocalDateTime.now());
 

@@ -25,6 +25,7 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponseDTO> crearUsuario(
             @Valid @RequestBody UsuarioRequestDTO request) {
 
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(service.crearUsuario(request));
     }

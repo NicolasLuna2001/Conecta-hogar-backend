@@ -20,7 +20,6 @@ public class MaestroMapper {
         maestro.setContrasena(request.contrasena());
         maestro.setTelefono(request.telefono());
         maestro.setRol(Rol.MAESTRO);
-        maestro.setEstado("ACTIVO");
         maestro.setFechaRegistro(LocalDateTime.now());
 
         // Campos propios de MaestroModel
@@ -47,7 +46,6 @@ public class MaestroMapper {
                 .activo(model.getActivo())
                 .meGusta(model.getMeGusta())
                 .noMeGusta(model.getNoMeGusta())
-                .estado(model.getEstado())
                 .build();
     }
 }
