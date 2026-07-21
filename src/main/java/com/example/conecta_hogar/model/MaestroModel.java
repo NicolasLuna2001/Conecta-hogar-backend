@@ -1,5 +1,6 @@
 package com.example.conecta_hogar.model;
 
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -8,6 +9,9 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "maestro")
@@ -43,4 +47,13 @@ public class MaestroModel extends UsuarioModel {
     @Min(value = 0, message = "El valor mínimo de 'No me gusta' debe ser 0")
     @Column(name = "no_gusta", nullable = false)
     private Integer noMeGusta = 0; // inicia en 0 por defecto
+
+    // --- PASO 3: RELACIÓN CON LA TABLA INTERMEDIA (ESPECIALIDADES) ---
+
+    @OneToMany(
+            mappedBy = "maestro",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<MaestroEspecialidadModel> especialidades = new ArrayList<>();
 }

@@ -8,8 +8,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.example.conecta_hogar.model.EstadoUsuario;
-import com.example.conecta_hogar.model.Rol;
 
 import java.time.LocalDateTime;
 
