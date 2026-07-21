@@ -62,4 +62,5 @@ public class UsuarioModel {
 
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
+
 }
