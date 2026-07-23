@@ -8,6 +8,7 @@ import com.example.conecta_hogar.model.Rol;
 import com.example.conecta_hogar.model.UsuarioModel;
 import com.example.conecta_hogar.repository.UsuarioRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class UsuarioServiceIpml implements UsuarioService{
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
 
     /* Crear usuario */
     @Override
@@ -34,8 +36,13 @@ public class UsuarioServiceIpml implements UsuarioService{
         // Convertir DTO a Modelo
         UsuarioModel usuario = usuarioMapper.toModel(request);
 
+        // Encriptar contraseña
+        usuario.setContrasena(
+                passwordEncoder.encode(request.contrasena())
+        );
+
         // Valores por defecto
-        usuario.setRol(Rol.CLIENTE); // cambiar al momento de hacer el registro (cliente o maestro)
+        usuario.setRol(Rol.CLIENTE);
         usuario.setEstado(EstadoUsuario.ACTIVO);
         usuario.setFechaRegistro(LocalDateTime.now());
 
@@ -45,6 +52,7 @@ public class UsuarioServiceIpml implements UsuarioService{
         // Retornar ResponseDTO
         return usuarioMapper.toDTO(usuarioGuardado);
     }
+
 
     /* Obtener todos los usuarios */
     @Override
