@@ -17,8 +17,7 @@ import java.util.List;
 @Service
 /*crea el constructor*/
 @AllArgsConstructor
-public class UsuarioServiceIpml implements UsuarioService{
-
+public class UsuarioServiceIpml implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
@@ -41,8 +40,15 @@ public class UsuarioServiceIpml implements UsuarioService{
                 passwordEncoder.encode(request.contrasena())
         );
 
-        // Valores por defecto
-        usuario.setRol(Rol.CLIENTE);
+        // --- ASIGNACIÓN DE ROL DINÁMICO ---
+        // Si la petición trae un rol, lo asignamos; si viene nulo, asignamos CLIENTE por defecto.
+        if (request.rol() != null) {
+            usuario.setRol(request.rol());
+        } else {
+            usuario.setRol(Rol.CLIENTE);
+        }
+
+        // Estado y Fecha de Registro por defecto
         usuario.setEstado(EstadoUsuario.ACTIVO);
         usuario.setFechaRegistro(LocalDateTime.now());
 
@@ -52,7 +58,6 @@ public class UsuarioServiceIpml implements UsuarioService{
         // Retornar ResponseDTO
         return usuarioMapper.toDTO(usuarioGuardado);
     }
-
 
     /* Obtener todos los usuarios */
     @Override
@@ -143,6 +148,5 @@ public class UsuarioServiceIpml implements UsuarioService{
                 .toList();
     }
 
-
-
 }
+

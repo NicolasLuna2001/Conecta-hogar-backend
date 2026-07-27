@@ -31,7 +31,10 @@ public record UsuarioRequestDTO(
                 regexp = "^(\\+56)?9\\d{8}$",
                 message = "Ingrese un teléfono válido"
         )
-        String telefono
+        String telefono,
+
+        // <-- CAMPO AGREGADO PARA PERMITIR ROLES COMO MAESTRO / ADMIN
+        Rol rol
 
 ) {
 }
