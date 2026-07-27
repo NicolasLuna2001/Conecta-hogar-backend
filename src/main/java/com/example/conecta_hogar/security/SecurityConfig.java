@@ -28,18 +28,65 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                // Configura las peticiones como STATELESS (sin sesión en servidor, ideal para JWT)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // API sin sesión en servidor, porque usarás JWT
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+
                 .authorizeHttpRequests(auth -> auth
+
+                        // Login público
                         .requestMatchers("/auth/**").permitAll()
+
+                        // Registro público
                         .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
+
+                        // Solo ADMIN puede listar todos los usuarios
+                        .requestMatchers(HttpMethod.GET, "/usuarios")
+                        .hasRole("ADMIN")
+
+                        // Solo ADMIN puede filtrar por rol
+                        .requestMatchers(HttpMethod.GET, "/usuarios/rol/**")
+                        .hasRole("ADMIN")
+
+                        // Solo ADMIN puede filtrar por estado
+                        .requestMatchers(HttpMethod.GET, "/usuarios/estado/**")
+                        .hasRole("ADMIN")
+
+                        // Solo ADMIN puede cambiar el estado de una cuenta
+                        .requestMatchers(HttpMethod.PATCH, "/usuarios/*/estado")
+                        .hasRole("ADMIN")
+
+                        // Consultar un usuario por id:
+                        // temporalmente, cualquier usuario autenticado
+                        .requestMatchers(HttpMethod.GET, "/usuarios/*")
+                        .authenticated()
+
+                        // Actualizar usuario:
+                        // temporalmente, cualquier usuario autenticado
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/*")
+                        .authenticated()
+
+                        // Cambiar contraseña:
+                        // temporalmente, cualquier usuario autenticado
+                        .requestMatchers(HttpMethod.PATCH, "/usuarios/*/contrasena")
+                        .authenticated()
+
+                        // Cualquier otra ruta necesita token válido
                         .anyRequest().authenticated()
                 )
+
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form.disable())
+
                 .authenticationProvider(authenticationProvider())
-                // Registra el filtro JWT ANTES del filtro estándar de usuario/contraseña
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+                // Valida el JWT antes del filtro estándar de Spring
+                .addFilterBefore(
+                        jwtAuthFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
