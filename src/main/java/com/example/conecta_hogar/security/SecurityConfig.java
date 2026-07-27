@@ -73,6 +73,42 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/usuarios/*/contrasena")
                         .authenticated()
 
+                        /* ESPECIALIDADES */
+
+                        // Cualquier persona puede consultar las especialidades
+                        .requestMatchers(HttpMethod.GET, "/especialidades", "/especialidades/**")
+                        .permitAll()
+
+                        // Solo ADMIN puede administrarlas
+                        .requestMatchers(HttpMethod.POST, "/especialidades")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.PUT, "/especialidades/**")
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.DELETE, "/especialidades/**")
+                        .hasRole("ADMIN")
+
+                        /* MAESTRO - ESPECIALIDAD */
+
+                        // Consultar especialidades de un maestro
+                        // y maestros asociados a una especialidad
+                        .requestMatchers(HttpMethod.GET, "/maestro-especialidades/**")
+                        .permitAll()
+
+                        // Maestro o admin puede crear una relación
+                        .requestMatchers(HttpMethod.POST, "/maestro-especialidades")
+                        .hasAnyRole("MAESTRO", "ADMIN")
+
+                        // Maestro o admin puede actualizarla
+                        .requestMatchers(HttpMethod.PUT, "/maestro-especialidades/**")
+                        .hasAnyRole("MAESTRO", "ADMIN")
+
+                        // Maestro o admin puede eliminarla
+                        .requestMatchers(HttpMethod.DELETE, "/maestro-especialidades/**")
+                        .hasAnyRole("MAESTRO", "ADMIN")
+
+
                         // Cualquier otra ruta necesita token válido
                         .anyRequest().authenticated()
                 )
