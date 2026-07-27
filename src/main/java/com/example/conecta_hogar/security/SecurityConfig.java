@@ -108,6 +108,35 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/maestro-especialidades/**")
                         .hasAnyRole("MAESTRO", "ADMIN")
 
+                        /* MAESTROS */
+
+                        // Crear maestro: público, si corresponde al registro
+                        .requestMatchers(HttpMethod.POST, "/maestros")
+                        .permitAll()
+
+                        // Consultar maestros
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/maestros",
+                                "/maestros/top",
+                                "/maestros/*"
+                        ).permitAll()
+
+                        // Actualizar perfil
+                        .requestMatchers(HttpMethod.PUT, "/maestros/*")
+                        .hasAnyRole("MAESTRO", "ADMIN")
+
+                        // Eliminar
+                        .requestMatchers(HttpMethod.DELETE, "/maestros/*")
+                        .hasRole("ADMIN")
+
+                        // Valoraciones
+                        .requestMatchers(
+                                HttpMethod.PATCH,
+                                "/maestros/*/me-gusta",
+                                "/maestros/*/no-me-gusta"
+                        ).hasRole("CLIENTE")
+
 
                         // Cualquier otra ruta necesita token válido
                         .anyRequest().authenticated()
