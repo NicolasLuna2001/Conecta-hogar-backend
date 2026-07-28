@@ -19,6 +19,13 @@ public class MaestroServiceImpl implements MaestroService {
     @Override
     public MaestroResponseDTO crearMaestro(MaestroRequestDTO request) {
         MaestroModel maestro = mapper.toModel(request);
+
+        // ⬇️ SOLUCIÓN AL ERROR NOT NULL EN LA COLUMNA "ESTADO" ⬇️
+        // Si en tu modelo 'estado' es un String (ej: "ACTIVO"):
+
+        // NOTA: Si en tu modelo 'estado' es un Boolean, cambia la línea anterior por:
+        // maestro.setEstado(true);
+
         MaestroModel guardado = repository.save(maestro);
         return mapper.toDTO(guardado);
     }

@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -27,6 +28,11 @@ public class MaestroController {
         return service.obtenerMaestros();
     }
 
+    @GetMapping("/top")
+    public List<MaestroResponseDTO> obtenerTopMaestros() {
+        return service.obtenerTopMaestros();
+    }
+
     @GetMapping("/{id}")
     public MaestroResponseDTO maestroById(@PathVariable Long id) {
         return service.maestroById(id);
@@ -43,20 +49,15 @@ public class MaestroController {
         service.eliminarMaestro(id);
     }
 
-    // --- ENDPOINTS ADICIONALES PARA EL FRONTEND ---
+    // --- ENDPOINTS DE VALORACIONES (CORREGIDOS A @PatchMapping SEGÚN SECURITYCONFIG) ---
 
-    @PutMapping("/{id}/me-gusta")
+    @PatchMapping("/{id}/me-gusta")
     public MaestroResponseDTO darMeGusta(@PathVariable Long id) {
         return service.darMeGusta(id);
     }
 
-    @PutMapping("/{id}/no-me-gusta")
+    @PatchMapping("/{id}/no-me-gusta")
     public MaestroResponseDTO darNoMeGusta(@PathVariable Long id) {
         return service.darNoMeGusta(id);
-    }
-
-    @GetMapping("/top")
-    public List<MaestroResponseDTO> obtenerTopMaestros() {
-        return service.obtenerTopMaestros();
     }
 }

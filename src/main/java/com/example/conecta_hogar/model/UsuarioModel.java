@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "usuario")
-@Inheritance(strategy = InheritanceType.JOINED)//se declara que esta tabla tendrá hijas (herencias)
+@Inheritance(strategy = InheritanceType.JOINED) // Se declara que esta tabla tendrá hijas (herencias)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -51,7 +51,7 @@ public class UsuarioModel {
     private String telefono;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable =false)
+    @Column(nullable = false)
     private Rol rol;
 
     @Enumerated(EnumType.STRING)
@@ -61,4 +61,14 @@ public class UsuarioModel {
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
 
+    // ⬇️ SE AGREGA ESTE MÉTODO PARA AUTO-ASIGNAR VALORES ANTES DE INSERTAR EN BD ⬇️
+    @PrePersist
+    public void prePersist() {
+        if (this.fechaRegistro == null) {
+            this.fechaRegistro = LocalDateTime.now();
+        }
+        if (this.estado == null) {
+            this.estado = EstadoUsuario.ACTIVO;
+        }
+    }
 }

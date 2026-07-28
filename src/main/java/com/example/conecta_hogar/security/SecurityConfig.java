@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
-    private final JwtAuthFilter jwtAuthFilter; // <-- Se agrega la inyección del filtro JWT
+    private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,7 +29,6 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
 
-                // API sin sesión en servidor, porque usarás JWT
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -39,82 +38,72 @@ public class SecurityConfig {
                         // Login público
                         .requestMatchers("/auth/**").permitAll()
 
-                        // Registro público
+                        // Registro público de usuarios
                         .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
 
                         // Solo ADMIN puede listar todos los usuarios
                         .requestMatchers(HttpMethod.GET, "/usuarios")
-                        .hasRole("ADMIN")
+                        .hasAnyAuthority("ADMIN", "ROLE_ADMIN")
 
                         // Solo ADMIN puede filtrar por rol
                         .requestMatchers(HttpMethod.GET, "/usuarios/rol/**")
-                        .hasRole("ADMIN")
+                        .hasAnyAuthority("ADMIN", "ROLE_ADMIN")
 
                         // Solo ADMIN puede filtrar por estado
                         .requestMatchers(HttpMethod.GET, "/usuarios/estado/**")
-                        .hasRole("ADMIN")
+                        .hasAnyAuthority("ADMIN", "ROLE_ADMIN")
 
                         // Solo ADMIN puede cambiar el estado de una cuenta
                         .requestMatchers(HttpMethod.PATCH, "/usuarios/*/estado")
-                        .hasRole("ADMIN")
+                        .hasAnyAuthority("ADMIN", "ROLE_ADMIN")
 
-                        // Consultar un usuario por id:
-                        // temporalmente, cualquier usuario autenticado
+                        // Consultar un usuario por id: cualquier autenticado
                         .requestMatchers(HttpMethod.GET, "/usuarios/*")
                         .authenticated()
 
-                        // Actualizar usuario:
-                        // temporalmente, cualquier usuario autenticado
+                        // Actualizar usuario: cualquier autenticado
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*")
                         .authenticated()
 
-                        // Cambiar contraseña:
-                        // temporalmente, cualquier usuario autenticado
+                        // Cambiar contraseña: cualquier autenticado
                         .requestMatchers(HttpMethod.PATCH, "/usuarios/*/contrasena")
                         .authenticated()
 
                         /* ESPECIALIDADES */
 
-                        // Cualquier persona puede consultar las especialidades
                         .requestMatchers(HttpMethod.GET, "/especialidades", "/especialidades/**")
                         .permitAll()
 
-                        // Solo ADMIN puede administrarlas
                         .requestMatchers(HttpMethod.POST, "/especialidades")
-                        .hasRole("ADMIN")
+                        .hasAnyAuthority("ADMIN", "ROLE_ADMIN")
 
                         .requestMatchers(HttpMethod.PUT, "/especialidades/**")
-                        .hasRole("ADMIN")
+                        .hasAnyAuthority("ADMIN", "ROLE_ADMIN")
 
                         .requestMatchers(HttpMethod.DELETE, "/especialidades/**")
-                        .hasRole("ADMIN")
+                        .hasAnyAuthority("ADMIN", "ROLE_ADMIN")
 
                         /* MAESTRO - ESPECIALIDAD */
 
-                        // Consultar especialidades de un maestro
-                        // y maestros asociados a una especialidad
                         .requestMatchers(HttpMethod.GET, "/maestro-especialidades/**")
                         .permitAll()
 
-                        // Maestro o admin puede crear una relación
                         .requestMatchers(HttpMethod.POST, "/maestro-especialidades")
-                        .hasAnyRole("MAESTRO", "ADMIN")
+                        .hasAnyAuthority("MAESTRO", "ROLE_MAESTRO", "ADMIN", "ROLE_ADMIN")
 
-                        // Maestro o admin puede actualizarla
                         .requestMatchers(HttpMethod.PUT, "/maestro-especialidades/**")
-                        .hasAnyRole("MAESTRO", "ADMIN")
+                        .hasAnyAuthority("MAESTRO", "ROLE_MAESTRO", "ADMIN", "ROLE_ADMIN")
 
-                        // Maestro o admin puede eliminarla
                         .requestMatchers(HttpMethod.DELETE, "/maestro-especialidades/**")
-                        .hasAnyRole("MAESTRO", "ADMIN")
+                        .hasAnyAuthority("MAESTRO", "ROLE_MAESTRO", "ADMIN", "ROLE_ADMIN")
 
                         /* MAESTROS */
 
-                        // Crear maestro: público, si corresponde al registro
+                        // Crear maestro: permite MAESTRO o ADMIN (con o sin prefijo ROLE_)
                         .requestMatchers(HttpMethod.POST, "/maestros")
-                        .permitAll()
+                        .hasAnyAuthority("MAESTRO", "ROLE_MAESTRO", "ADMIN", "ROLE_ADMIN")
 
-                        // Consultar maestros
+                        // Consultar maestros sigue siendo público
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/maestros",
@@ -124,21 +113,19 @@ public class SecurityConfig {
 
                         // Actualizar perfil
                         .requestMatchers(HttpMethod.PUT, "/maestros/*")
-                        .hasAnyRole("MAESTRO", "ADMIN")
+                        .hasAnyAuthority("MAESTRO", "ROLE_MAESTRO", "ADMIN", "ROLE_ADMIN")
 
                         // Eliminar
                         .requestMatchers(HttpMethod.DELETE, "/maestros/*")
-                        .hasRole("ADMIN")
+                        .hasAnyAuthority("ADMIN", "ROLE_ADMIN")
 
-                        // Valoraciones
+                        // Valoraciones (Me gusta / No me gusta)
                         .requestMatchers(
                                 HttpMethod.PATCH,
                                 "/maestros/*/me-gusta",
                                 "/maestros/*/no-me-gusta"
-                        ).hasRole("CLIENTE")
+                        ).hasAnyAuthority("CLIENTE", "ROLE_CLIENTE")
 
-
-                        // Cualquier otra ruta necesita token válido
                         .anyRequest().authenticated()
                 )
 
@@ -147,7 +134,6 @@ public class SecurityConfig {
 
                 .authenticationProvider(authenticationProvider())
 
-                // Valida el JWT antes del filtro estándar de Spring
                 .addFilterBefore(
                         jwtAuthFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -163,10 +149,8 @@ public class SecurityConfig {
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        // Se le pasa customUserDetailsService al constructor para evitar errores de Spring Security 3+
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(customUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
-
         return provider;
     }
 
