@@ -6,6 +6,7 @@ import com.example.conecta_hogar.mapper.MaestroMapper;
 import com.example.conecta_hogar.model.MaestroModel;
 import com.example.conecta_hogar.repository.MaestroRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -15,16 +16,16 @@ public class MaestroServiceImpl implements MaestroService {
 
     private final MaestroRepository repository;
     private final MaestroMapper mapper;
+    private final PasswordEncoder passwordEncoder; // Inyección para encriptar contraseñas
 
     @Override
     public MaestroResponseDTO crearMaestro(MaestroRequestDTO request) {
         MaestroModel maestro = mapper.toModel(request);
 
-        // ⬇️ SOLUCIÓN AL ERROR NOT NULL EN LA COLUMNA "ESTADO" ⬇️
-        // Si en tu modelo 'estado' es un String (ej: "ACTIVO"):
-
-        // NOTA: Si en tu modelo 'estado' es un Boolean, cambia la línea anterior por:
-        // maestro.setEstado(true);
+        // ⬇️ ENCRIPTACIÓN DE CONTRASEÑA CON BCRYPT ⬇️
+        if (request.contrasena() != null) {
+            maestro.setContrasena(passwordEncoder.encode(request.contrasena()));
+        }
 
         MaestroModel guardado = repository.save(maestro);
         return mapper.toDTO(guardado);
@@ -56,6 +57,11 @@ public class MaestroServiceImpl implements MaestroService {
         maestro.setEspecialidad(request.especialidad());
         maestro.setDescripcion(request.descripcion());
         maestro.setFotoPerfil(request.fotoPerfil());
+
+        // Si se envía una nueva contraseña al actualizar, también se encripta
+        if (request.contrasena() != null && !request.contrasena().isBlank()) {
+            maestro.setContrasena(passwordEncoder.encode(request.contrasena()));
+        }
 
         MaestroModel actualizado = repository.save(maestro);
         return mapper.toDTO(actualizado);
