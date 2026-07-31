@@ -38,7 +38,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         // 1. Si no viene el token o no empieza por "Bearer ", dejamos pasar la petición
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("❌ NO SE ENCONTRÓ HEADER 'Authorization' VÁLIDO (Debe empezar por 'Bearer ')");
+            System.out.println("NO SE ENCONTRÓ HEADER 'Authorization' VÁLIDO (Debe empezar por 'Bearer ')");
             filterChain.doFilter(request, response);
             return;
         }
@@ -46,7 +46,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         try {
             // Extraemos el token quitando el prefijo "Bearer " (7 caracteres)
             jwt = authHeader.substring(7).trim();
-            System.out.println("🔑 TOKEN RECIBIDO: " + jwt.substring(0, Math.min(jwt.length(), 20)) + "...");
+            System.out.println("TOKEN RECIBIDO: " + jwt.substring(0, Math.min(jwt.length(), 20)) + "...");
 
             userEmail = jwtService.extractUsername(jwt);
             System.out.println("👤 CORREO EXTRAÍDO DEL TOKEN: " + userEmail);
@@ -54,7 +54,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             // Si el token trae un correo y el usuario no está autenticado aún en el contexto
             if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
-                System.out.println("📋 ROLES CARGADOS EN SECURITY: " + userDetails.getAuthorities());
+                System.out.println("ROLES CARGADOS EN SECURITY: " + userDetails.getAuthorities());
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -66,13 +66,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                     // Registramos al usuario autenticado en el contexto de Spring Security
                     SecurityContextHolder.getContext().setAuthentication(authToken);
-                    System.out.println("✅ ¡AUTENTICACIÓN EXITOSA EN CONTEXTO PARA " + userEmail + "!");
+                    System.out.println("¡AUTENTICACIÓN EXITOSA EN CONTEXTO PARA " + userEmail + "!");
                 } else {
-                    System.out.println("❌ EL TOKEN NO ES VÁLIDO PARA ESTE USUARIO (jwtService.isTokenValid = false)");
+                    System.out.println("EL TOKEN NO ES VÁLIDO PARA ESTE USUARIO (jwtService.isTokenValid = false)");
                 }
             }
         } catch (Exception e) {
-            System.err.println("❌ EXCEPCIÓN AL PROCESAR TOKEN:");
+            System.err.println("EXCEPCIÓN AL PROCESAR TOKEN:");
             e.printStackTrace(); // Esto te dirá el error exacto (SignatureException, ExpiredJwtException, etc.)
             SecurityContextHolder.clearContext();
         }

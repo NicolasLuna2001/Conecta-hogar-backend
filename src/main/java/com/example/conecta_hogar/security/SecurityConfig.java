@@ -116,7 +116,7 @@ public class SecurityConfig {
                         /* MAESTROS */
 
                         // Crear maestro normal o con foto: permite MAESTRO o ADMIN (con o sin prefijo ROLE_)
-                        // ⬇️ SE AGREGÓ "/maestros/con-foto" AQUÍ ⬇️
+                        // SE AGREGÓ "/maestros/con-foto" AQUÍ
                         .requestMatchers(HttpMethod.POST, "/maestros", "/maestros/con-foto")
                         .hasAnyAuthority("MAESTRO", "ROLE_MAESTRO", "ADMIN", "ROLE_ADMIN")
 
