@@ -8,7 +8,15 @@ import com.example.conecta_hogar.repository.MaestroRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @AllArgsConstructor
@@ -16,15 +24,52 @@ public class MaestroServiceImpl implements MaestroService {
 
     private final MaestroRepository repository;
     private final MaestroMapper mapper;
-    private final PasswordEncoder passwordEncoder; // Inyección para encriptar contraseñas
+    private final PasswordEncoder passwordEncoder;
+
+    // Directorio donde se guardarán las fotos localmente
+    private final String UPLOAD_DIR = "uploads/";
 
     @Override
     public MaestroResponseDTO crearMaestro(MaestroRequestDTO request) {
         MaestroModel maestro = mapper.toModel(request);
 
-        // ⬇️ ENCRIPTACIÓN DE CONTRASEÑA CON BCRYPT ⬇️
         if (request.contrasena() != null) {
             maestro.setContrasena(passwordEncoder.encode(request.contrasena()));
+        }
+
+        MaestroModel guardado = repository.save(maestro);
+        return mapper.toDTO(guardado);
+    }
+
+    // ⬇️ NUEVO MÉTODO: Para guardar el maestro junto con su foto local ⬇️
+    public MaestroResponseDTO crearMaestroConFoto(MaestroRequestDTO request, MultipartFile foto) {
+        MaestroModel maestro = mapper.toModel(request);
+
+        if (request.contrasena() != null) {
+            maestro.setContrasena(passwordEncoder.encode(request.contrasena()));
+        }
+
+        // Procesar y guardar la imagen localmente
+        if (foto != null && !foto.isEmpty()) {
+            try {
+                Path uploadPath = Paths.get(UPLOAD_DIR);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath); // Crea la carpeta 'uploads' si no existe
+                }
+
+                // Generar un nombre único para evitar duplicados
+                String nombreArchivo = UUID.randomUUID().toString() + "_" + foto.getOriginalFilename();
+                Path filePath = uploadPath.resolve(nombreArchivo);
+
+                // Copiar el archivo al directorio local
+                Files.copy(foto.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                // Guardar la ruta/nombre del archivo en el modelo
+                maestro.setFotoPerfil("/uploads/" + nombreArchivo);
+
+            } catch (IOException e) {
+                throw new RuntimeException("Error al guardar la imagen localmente", e);
+            }
         }
 
         MaestroModel guardado = repository.save(maestro);
@@ -58,7 +103,6 @@ public class MaestroServiceImpl implements MaestroService {
         maestro.setDescripcion(request.descripcion());
         maestro.setFotoPerfil(request.fotoPerfil());
 
-        // Si se envía una nueva contraseña al actualizar, también se encripta
         if (request.contrasena() != null && !request.contrasena().isBlank()) {
             maestro.setContrasena(passwordEncoder.encode(request.contrasena()));
         }

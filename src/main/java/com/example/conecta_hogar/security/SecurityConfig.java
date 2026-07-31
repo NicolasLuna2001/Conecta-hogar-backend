@@ -35,6 +35,9 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // ⬇️ RECURSOS ESTÁTICOS / FOTOS SUBIDAS PÚBLICAS ⬇️
+                        .requestMatchers("/uploads/**").permitAll()
+
                         // Login público
                         .requestMatchers("/auth/**").permitAll()
 
@@ -99,8 +102,9 @@ public class SecurityConfig {
 
                         /* MAESTROS */
 
-                        // Crear maestro: permite MAESTRO o ADMIN (con o sin prefijo ROLE_)
-                        .requestMatchers(HttpMethod.POST, "/maestros")
+                        // Crear maestro normal o con foto: permite MAESTRO o ADMIN (con o sin prefijo ROLE_)
+                        // ⬇️ SE AGREGÓ "/maestros/con-foto" AQUÍ ⬇️
+                        .requestMatchers(HttpMethod.POST, "/maestros", "/maestros/con-foto")
                         .hasAnyAuthority("MAESTRO", "ROLE_MAESTRO", "ADMIN", "ROLE_ADMIN")
 
                         // Consultar maestros sigue siendo público

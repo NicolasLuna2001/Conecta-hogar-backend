@@ -2,10 +2,13 @@ package com.example.conecta_hogar.service;
 
 import com.example.conecta_hogar.dto.MaestroRequestDTO;
 import com.example.conecta_hogar.dto.MaestroResponseDTO;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface MaestroService {
     MaestroResponseDTO crearMaestro(MaestroRequestDTO request);
+
+    MaestroResponseDTO crearMaestroConFoto(MaestroRequestDTO request, MultipartFile foto);
     List<MaestroResponseDTO> obtenerMaestros();
     MaestroResponseDTO maestroById(Long id);
     MaestroResponseDTO actualizarMaestro(Long id, MaestroRequestDTO request);

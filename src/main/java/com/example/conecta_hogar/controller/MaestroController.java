@@ -6,7 +6,9 @@ import com.example.conecta_hogar.service.MaestroService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,6 +23,15 @@ public class MaestroController {
     @ResponseStatus(HttpStatus.CREATED)
     public MaestroResponseDTO crearMaestro(@Valid @RequestBody MaestroRequestDTO request) {
         return service.crearMaestro(request);
+    }
+
+    // ⬇️ ENDPOINT PARA CREAR MAESTRO SUBIENDO FOTO LOCAL ⬇️
+    @PostMapping(value = "/con-foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public MaestroResponseDTO crearMaestroConFoto(
+            @Valid @RequestPart("maestro") MaestroRequestDTO request,
+            @RequestPart(value = "foto", required = false) MultipartFile foto) {
+        return service.crearMaestroConFoto(request, foto);
     }
 
     @GetMapping
