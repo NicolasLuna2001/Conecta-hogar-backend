@@ -34,6 +34,14 @@ public class MaestroController {
         return service.crearMaestroConFoto(request, foto);
     }
 
+    //  NUEVO ENDPOINT PARA ACTUALIZAR LA FOTO DE UN MAESTRO EXISTENTE 
+    @PutMapping(value = "/{id}/foto", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public MaestroResponseDTO actualizarFotoMaestro(
+            @PathVariable Long id,
+            @RequestPart("foto") MultipartFile foto) {
+        return service.actualizarFotoMaestro(id, foto);
+    }
+
     @GetMapping
     public List<MaestroResponseDTO> obtenerMaestros() {
         return service.obtenerMaestros();

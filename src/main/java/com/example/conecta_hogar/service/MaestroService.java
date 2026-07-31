@@ -9,6 +9,10 @@ public interface MaestroService {
     MaestroResponseDTO crearMaestro(MaestroRequestDTO request);
 
     MaestroResponseDTO crearMaestroConFoto(MaestroRequestDTO request, MultipartFile foto);
+
+    // Nuevo método para actualizar la foto de un maestro existente
+    MaestroResponseDTO actualizarFotoMaestro(Long id, MultipartFile foto);
+
     List<MaestroResponseDTO> obtenerMaestros();
     MaestroResponseDTO maestroById(Long id);
     MaestroResponseDTO actualizarMaestro(Long id, MaestroRequestDTO request);
