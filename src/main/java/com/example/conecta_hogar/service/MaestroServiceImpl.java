@@ -42,6 +42,7 @@ public class MaestroServiceImpl implements MaestroService {
     }
 
     // ⬇️ NUEVO MÉTODO: Para guardar el maestro junto con su foto local ⬇️
+    @Override
     public MaestroResponseDTO crearMaestroConFoto(MaestroRequestDTO request, MultipartFile foto) {
         MaestroModel maestro = mapper.toModel(request);
 
@@ -74,6 +75,36 @@ public class MaestroServiceImpl implements MaestroService {
 
         MaestroModel guardado = repository.save(maestro);
         return mapper.toDTO(guardado);
+    }
+
+    // ⬇️ NUEVO MÉTODO: Para actualizar ÚNICAMENTE la foto de un maestro existente ⬇️
+    @Override
+    public MaestroResponseDTO actualizarFotoMaestro(Long id, MultipartFile foto) {
+        MaestroModel maestro = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Maestro no encontrado con ID: " + id));
+
+        if (foto != null && !foto.isEmpty()) {
+            try {
+                Path uploadPath = Paths.get(UPLOAD_DIR);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                String nombreArchivo = UUID.randomUUID().toString() + "_" + foto.getOriginalFilename();
+                Path filePath = uploadPath.resolve(nombreArchivo);
+
+                Files.copy(foto.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                // Se asigna la nueva foto al maestro encontrado
+                maestro.setFotoPerfil("/uploads/" + nombreArchivo);
+
+            } catch (IOException e) {
+                throw new RuntimeException("Error al actualizar la imagen localmente", e);
+            }
+        }
+
+        MaestroModel actualizado = repository.save(maestro);
+        return mapper.toDTO(actualizado);
     }
 
     @Override
