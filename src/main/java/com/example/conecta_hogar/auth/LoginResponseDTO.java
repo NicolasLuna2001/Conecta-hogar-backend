@@ -9,6 +9,7 @@ public record LoginResponseDTO(
 
     String token,
 
-    String mensaje
+    String mensaje,
+    String rol
 
 ){}

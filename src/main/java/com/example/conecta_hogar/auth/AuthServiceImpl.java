@@ -25,7 +25,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponseDTO login(LoginRequestDTO request) {
 
-        // 1. Autenticamos el correo y contraseña con Spring Security
+        // 1. Autenticar usuario
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.correo(),
@@ -33,19 +33,23 @@ public class AuthServiceImpl implements AuthService {
                 )
         );
 
-        // 2. Cargamos la información del usuario
-        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(request.correo());
+        // 2. Obtener datos del usuario
+        CustomUserDetails userDetails =
+                (CustomUserDetails) userDetailsService.loadUserByUsername(request.correo());
 
-        // 3. Generamos el token JWT real
+        // 3. Generar JWT
         String jwtToken = jwtService.generateToken(userDetails);
 
-        // 4. Retornamos la respuesta construida con el token generado
+        // 4. Obtener el rol
+        String rol = userDetails.getUsuario().getRol().name();
+
+        // 5. Respuesta
         return LoginResponseDTO.builder()
                 .mensaje("Inicio de sesión exitoso")
                 .token(jwtToken)
+                .rol(rol)
                 .build();
     }
-
     @Override
     public LoginResponseDTO register(RegisterRequestDTO request) {
 
