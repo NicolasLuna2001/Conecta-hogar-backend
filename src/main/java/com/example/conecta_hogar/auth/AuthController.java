@@ -6,7 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -15,8 +16,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(
             @Valid @RequestBody LoginRequestDTO request) {
-
         return ResponseEntity.ok(authService.login(request));
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<LoginResponseDTO> register(
+            @Valid @RequestBody RegisterRequestDTO request) {
+        return ResponseEntity.ok(authService.register(request));
+    }
 }
