@@ -44,13 +44,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // 2. Rutas públicas (Login, registro, imágenes)
-                        .requestMatchers("/auth/**", "/uploads/**").permitAll()
+                        .requestMatchers("/auth/*", "/uploads/*").permitAll()
 
                         // 3. Consultas públicas de visualización (Listar profesionales y especialidades)
-                        .requestMatchers(HttpMethod.GET, "/maestros/**", "/especialidades/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/maestros", "/maestros/*", "/especialidades", "/especialidades/*").permitAll()
 
                         // 4. Endpoints del panel de administración (Requieren autenticación)
-                        .requestMatchers("/usuarios/**", "/admin/**", "/maestros/**").authenticated()
+                        .requestMatchers("/usuarios/*", "/admin/", "/maestros/*").authenticated()
 
                         // 5. Cualquier otra solicitud requiere estar autenticado
                         .anyRequest().authenticated()
