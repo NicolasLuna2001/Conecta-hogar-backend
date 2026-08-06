@@ -1,6 +1,5 @@
 package com.example.conecta_hogar.auth;
 
-import com.example.conecta_hogar.model.MaestroModel;
 import com.example.conecta_hogar.model.Rol;
 import com.example.conecta_hogar.model.UsuarioModel;
 import com.example.conecta_hogar.repository.UsuarioRepository;
@@ -68,31 +67,8 @@ public class AuthServiceImpl implements AuthService {
         // 3. Encriptar la contraseña
         String passwordEncriptada = passwordEncoder.encode(rawPassword);
 
-        // 4. Determinar si el registro es de un profesional (MAESTRO) o un cliente
-        boolean esProfesional = request.tipoUsuario() != null
-                && (request.tipoUsuario().toUpperCase().contains("PROFESIONAL")
-                || request.tipoUsuario().toUpperCase().contains("MAESTRO"));
-
-        // 5. Crear el objeto correspondiente y asignar campos reales (incluyendo dirección)
-        // 👉 IMPORTANTE: si es profesional, se crea un MaestroModel (subclase de UsuarioModel)
-        //    para que también quede la fila en la tabla "maestro" y aparezca en /maestros.
-        UsuarioModel nuevoUsuario;
-
-        if (esProfesional) {
-            MaestroModel nuevoMaestro = new MaestroModel();
-
-            // La especialidad es obligatoria en la tabla maestro (@NotBlank)
-            String especialidad = (request.especialidades() != null && !request.especialidades().isEmpty())
-                    ? request.especialidades().get(0)
-                    : "Sin especialidad";
-            nuevoMaestro.setEspecialidad(especialidad);
-            nuevoMaestro.setActivo(true);
-
-            nuevoUsuario = nuevoMaestro;
-        } else {
-            nuevoUsuario = new UsuarioModel();
-        }
-
+        // 4. Crear el objeto UsuarioModel y asignar campos reales (incluyendo dirección)
+        UsuarioModel nuevoUsuario = new UsuarioModel();
         nuevoUsuario.setNombre(request.nombre());
         nuevoUsuario.setApellido(request.apellido());
         nuevoUsuario.setRut(request.rut());
@@ -100,7 +76,16 @@ public class AuthServiceImpl implements AuthService {
         nuevoUsuario.setCorreo(request.correo());
         nuevoUsuario.setDireccion(request.direccion()); // 👈 Mapea la dirección recibida
         nuevoUsuario.setContrasena(passwordEncriptada);
-        nuevoUsuario.setRol(esProfesional ? Rol.MAESTRO : Rol.CLIENTE);
+
+        // 5. Manejo del tipo de usuario / Rol
+        if (request.tipoUsuario() != null) {
+            String tipo = request.tipoUsuario().toUpperCase();
+            if (tipo.contains("PROFESIONAL") || tipo.contains("MAESTRO")) {
+                nuevoUsuario.setRol(Rol.MAESTRO);
+            } else {
+                nuevoUsuario.setRol(Rol.CLIENTE);
+            }
+        }
 
         // 6. Guardar en Base de Datos
         usuarioRepository.save(nuevoUsuario);
