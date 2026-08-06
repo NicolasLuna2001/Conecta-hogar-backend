@@ -203,9 +203,9 @@ Para mantener el historial limpio y ordenado, se utilizan los siguientes prefijo
 
 
 
-- Valentina Milena Lulic | Front End
-- Denisse Labrana Henriquez | Front End
-- Benjamin Andres Pinto | Front End
-- Nicolas Gerard Luna | Back End
-- Jorge Ivan Gatica | Back End
-- Aaron Esteban Guerra | Back end
+- Valentina Lulic | Front End
+- Denisse Labrana | Front End
+- Benjamin Pinto | Front End
+- Nicolas Luna | Back End
+- Jorge Gatica | Back End
+- Aaron Guerra | Back end
